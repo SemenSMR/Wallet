@@ -10,6 +10,7 @@ import java.util.UUID;
 public class WalletOperationRequest {
     private UUID walletId;
     private OperationType operationType;
+    private BigDecimal amount;
 
     public void setWalletId(UUID walletId) {
         this.walletId = walletId;
@@ -35,7 +36,7 @@ public class WalletOperationRequest {
         return amount;
     }
 
-    private BigDecimal amount;
+
 
 }
 
