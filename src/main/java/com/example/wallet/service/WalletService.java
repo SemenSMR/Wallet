@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -22,23 +23,30 @@ public class WalletService {
 
     @Transactional
     public void performOperation(WalletOperationRequest request) {
-        Wallet wallet = walletRepository.findById(request.getWalletId())
-                .orElseThrow(() -> new WalletNotFoundException("Wallet not found"));
+        UUID walletId = request.getWalletId();
+        BigDecimal amount = request.getAmount();
 
-        synchronized (wallet) {
-            if (request.getOperationType() == OperationType.WITHDRAW) {
-                if (wallet.getBalance().compareTo(request.getAmount()) < 0) {
-                    throw new InsufficientFundsException("Insufficient found");
+        Optional<Wallet> optionalWallet = walletRepository.findByIdForUpdate(walletId);
+        if (optionalWallet.isEmpty()) {
+            throw new WalletNotFoundException("Wallet not found");
+        }
+        Wallet wallet = optionalWallet.get();
 
-                }
-                wallet.setBalance(wallet.getBalance().subtract(request.getAmount()));
-            } else if (request.getOperationType() == OperationType.DEPOSIT) {
-                if (request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
-                    throw new IllegalArgumentException("Deposit amount must be greater than zero");
-                }
-                wallet.setBalance(wallet.getBalance().add(request.getAmount()));
+        if (request.getOperationType() == OperationType.WITHDRAW) {
+            if (wallet.getBalance().compareTo(amount) < 0) {
+                throw new InsufficientFundsException("Insufficient funds");
             }
-            walletRepository.save(wallet);
+            amount = amount.negate();
+        } else if (request.getOperationType() == OperationType.DEPOSIT) {
+            if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+                throw new IllegalArgumentException("Deposit amount must be greater than zero");
+            }
+        } else {
+            throw new IllegalArgumentException("Invalid operation type");
+        }
+        int updated = walletRepository.updateBalance(walletId, amount);
+        if (updated == 0) {
+            throw new RuntimeException("Failed to update wallet balance");
         }
     }
 
