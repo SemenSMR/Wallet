@@ -2,19 +2,15 @@ package com.example.wallet.controller;
 
 import com.example.wallet.dto.WalletOperationRequest;
 import com.example.wallet.dto.WalletResponse;
-import com.example.wallet.entity.Wallet;
 import com.example.wallet.handler.InsufficientFundsException;
 import com.example.wallet.handler.WalletNotFoundException;
 import com.example.wallet.service.WalletService;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
+import com.example.wallet.service.WalletServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.util.UUID;
 
 @RestController

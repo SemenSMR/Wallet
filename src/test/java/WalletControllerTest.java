@@ -3,6 +3,7 @@ import com.example.wallet.dto.OperationType;
 import com.example.wallet.dto.WalletOperationRequest;
 import com.example.wallet.dto.WalletResponse;
 import com.example.wallet.service.WalletService;
+import com.example.wallet.service.WalletServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -37,6 +38,7 @@ public class WalletControllerTest {
         request.setWalletId(UUID.randomUUID());
         request.setOperationType(OperationType.DEPOSIT);
         request.setAmount(BigDecimal.valueOf(1000));
+        Mockito.doNothing().when(walletService).performOperation(Mockito.any(WalletOperationRequest.class));
 
         mockMvc.perform(post("/api/v1/wallet")
                         .contentType(MediaType.APPLICATION_JSON)
